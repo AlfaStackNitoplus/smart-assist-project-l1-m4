@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { Login } from './features/auth/login/login';
-import { User } from './features/user/user';
+import { UserComponent } from './features/user/user';
 import { SupportEngineer } from './features/support-engineer/support-engineer';
 import { AuthLayout } from './features/layouts/auth-layout/auth-layout';
 import { MainLayout } from './features/layouts/main-layout/main-layout';
@@ -25,9 +25,9 @@ export const routes: Routes = [
         path: '',
         component: MainLayout,
         children: [
-            { path: 'admin', component: Supervisor },
+            { path: 'supervisor', component: Supervisor },
             { path: 'support', component: SupportEngineer },
-            { path: 'user', component: User },
+            { path: 'user', component: UserComponent },
 
 
 

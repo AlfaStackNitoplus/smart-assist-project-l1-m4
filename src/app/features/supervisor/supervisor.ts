@@ -1,52 +1,19 @@
 import { Component } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { ActivatedRoute } from '@angular/router';
-import { MockData } from '../../assets/mock-data';
-import { MatDialog } from '@angular/material/dialog';
-import { Ticket, TicketPriority, TicketStatus } from '../../core/models/ticket.model';
+import { TicketDashboard } from '../../shared/ticket-dashboard/ticket-dashboard';
+import { Ticket, TicketStatus } from '../../core/models/ticket.model';
 import { AssignTicketDialog } from '../support-engineer/assign-ticket-dialog/assign-ticket-dialog';
-import { CommonModule } from '@angular/common';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
-import { AgePipePipe } from '../../shared/pipes/age-pipe-pipe';
+import { MatDialog } from '@angular/material/dialog';
+import { TicketService } from '../../core/services/ticket.service';
 
 @Component({
   selector: 'app-supervisor',
-  imports: [MatToolbarModule,
-    MatCardModule,
-    MatButtonModule,
-    CommonModule,
-    MatChipsModule,
-    MatIconModule,
-    AgePipePipe],
+  imports: [TicketDashboard],
   templateUrl: './supervisor.html',
   styleUrl: './supervisor.scss',
 })
 export class Supervisor {
-  userName: string = '';
-  userId: string = '';
-  userTickets: Ticket[] = [];
-  ticketPriority = TicketPriority;
-  ticketStatus = TicketStatus;
-  selectedFilter = 'ALL';
-  filteredTickets: Ticket[] = [];
-  constructor(
-    private route: ActivatedRoute,
-    private dialog: MatDialog
-  ) {
-    route.queryParams.subscribe(params => {
-      this.userId = params['id'];
-    });
-    this.userName = MockData.users.find(u => u.userId === this.userId)?.name || '';
-    this.userTickets = MockData.tickets;
-    this.filteredTickets = this.userTickets;
-  }
-  getAssigneeName(assigneeId?: string): string {
-    if (!assigneeId) return '-';
-    return MockData.users.find(u => u.userId === assigneeId)?.name ?? '-';
-  }
+
+  constructor(private dialog: MatDialog, private ticketService: TicketService) { }
   viewTicketDetails(ticket: Ticket): void {
     this.dialog.open(AssignTicketDialog, {
       width: '360px',
@@ -55,35 +22,16 @@ export class Supervisor {
         ticketId: ticket.ticketId
       }
     }).afterClosed().subscribe(result => {
-      if (result) {
-        this.userTickets = this.userTickets.map(t =>
-          t.ticketId === ticket.ticketId ? { ...t, assignedToUserId: result.assignee } : t
-        );
-        console.log('Assigned To:', result.assignee);
-        console.log('Comment:', result.comment);
+      if (!result) {
+        console.log('Dialog closed without assignment');
+      } else {
+        this.ticketService.updateTicket({
+          ...ticket,
+          assignedToUserId: result.assignee,
+          status: TicketStatus.Assigned,
+        });
       }
     });
 
-  }
-
-  applyFilter(tickets: Ticket[], filter: string): Ticket[] {
-    switch (filter) {
-      case 'OPEN':
-        return tickets.filter(t => t.status === TicketStatus.New);
-
-      case 'CLOSED':
-        return tickets.filter(t => t.status === TicketStatus.Closed);
-
-      case 'RESOLVED':
-        return tickets.filter(t => t.status === TicketStatus.Resolved);
-      default:
-        return tickets;
-    }
-  }
-
-  onFilterChange(filter: string) {
-    this.selectedFilter = filter;
-
-    this.filteredTickets = this.applyFilter(this.userTickets, filter);
   }
 }

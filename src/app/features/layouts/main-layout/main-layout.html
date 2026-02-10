@@ -15,7 +15,9 @@
     </mat-drawer>
     <div class="sidenav-content">
         <app-header [version]="version" [isLogin]="true" (menuToggle)="drawer.toggle()"></app-header>
-        <router-outlet></router-outlet>
+        <div class="main-content">
+             <router-outlet></router-outlet>
+        </div>
         <app-footer [develop]="develop"></app-footer>
     </div>
 

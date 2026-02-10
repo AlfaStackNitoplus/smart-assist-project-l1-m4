@@ -3,7 +3,7 @@ import { Pipe, PipeTransform } from '@angular/core';
 @Pipe({
   name: 'age'
 })
-export class AgePipePipe implements PipeTransform {
+export class AgePipe implements PipeTransform {
 
   transform(date: string | Date): string {
     const created = new Date(date).getTime();

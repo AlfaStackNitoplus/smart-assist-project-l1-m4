@@ -1,6 +1,6 @@
-import { Role } from "./user.model";
+import { UserRole } from "./user.model";
 
 export interface RoleMenuMapping {
-  role: Role;
+  role: UserRole;
   menuIds: number[];
 }

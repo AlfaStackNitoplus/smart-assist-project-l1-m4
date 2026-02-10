@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MockData } from '../../../assets/mock-data';
-import { Role, User } from '../../../core/models/user.model';
+import { UserRole, User } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-assign-ticket-dialog',
@@ -33,7 +33,7 @@ export class AssignTicketDialog {
     private dialogRef: MatDialogRef<AssignTicketDialog>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
-    this.listOfAssignees = MockData.users.filter(u => u.role === Role.SUPPORT_ENGINEER);
+    this.listOfAssignees = MockData.users.filter(u => u.role === UserRole.SUPPORT_ENGINEER);
    }
 
   assign() {

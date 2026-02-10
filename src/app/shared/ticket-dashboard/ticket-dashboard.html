@@ -1,0 +1,153 @@
+<div class="user-profile">
+    Welcome, {{ (userService.user$ | async)?.name }}
+</div>
+
+<div class="stats-grid">
+    <div class="dashboard-controls">
+
+        <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search by Assigned To</mat-label>
+            <input matInput #ticketSearch type="text" placeholder="Search user name..." autocomplete="off" />
+
+            <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-chip-listbox (change)="onFilterChange($event.value)">
+            <mat-chip-option value="Open">Open</mat-chip-option>
+            <mat-chip-option value="Closed">Closed</mat-chip-option>
+            <mat-chip-option value="New">New</mat-chip-option>
+        </mat-chip-listbox>
+
+    </div>
+
+    <div class="card">Open: {{ openCount() }}</div>
+    <div class="card">Closed: {{ closedCount() }}</div>
+
+    @if (currentUser()?.role !== UserRole.END_USER) {
+    <div class="card dark">New: {{ newCount() }}</div>
+    }
+</div>
+
+<div class="desktop-view">
+    <table mat-table [dataSource]="(tickets$ | async) || []" class="mat-elevation-z8">
+
+        <ng-container matColumnDef="title">
+            <th mat-header-cell *matHeaderCellDef> Title </th>
+            <td mat-cell *matCellDef="let t"> {{ t.title }} </td>
+        </ng-container>
+
+        @if (currentUser()?.role !== UserRole.END_USER) {
+        <ng-container matColumnDef="createdBy">
+            <th mat-header-cell *matHeaderCellDef> Created By </th>
+            <td mat-cell *matCellDef="let t"> {{ getUserName(t.createdByUserId) }} </td>
+        </ng-container>
+        }
+
+        <ng-container matColumnDef="assignedTo">
+            <th mat-header-cell *matHeaderCellDef> Assigned To </th>
+            <td mat-cell *matCellDef="let t">
+                {{ t.assignedToUserId === currentUser()?.userId ? '@Me' : getUserName(t.assignedToUserId) }}
+            </td>
+        </ng-container>
+        <ng-container matColumnDef="status">
+            <th mat-header-cell *matHeaderCellDef> Status </th>
+            <td mat-cell *matCellDef="let t"> {{ ticketStatus[t.status] }} </td>
+        </ng-container>
+        <ng-container matColumnDef="priority">
+            <th mat-header-cell *matHeaderCellDef> Priority </th>
+            <td mat-cell *matCellDef="let t"> {{ ticketPriority[t.priority] }} </td>
+        </ng-container>
+        <ng-container matColumnDef="age">
+            <th mat-header-cell *matHeaderCellDef> Age </th>
+            <td mat-cell *matCellDef="let t">
+                {{ t.createdAt | age }}
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="action">
+            <th mat-header-cell *matHeaderCellDef> Action </th>
+            <td mat-cell *matCellDef="let ticket">
+                @switch (currentUser()?.role) {
+                @case (UserRole.END_USER) {
+
+                @switch (ticket.status) {
+                @case (TicketStatus.Input_Requested) {
+                <button mat-button (click)="provideInput(ticket)">Provide Input</button>
+                }
+                @case (TicketStatus.Resolved) {
+                <button mat-button (click)="feedback(ticket)">Provide Feedback</button>
+                }
+                @case (TicketStatus.Closed) {
+                @if (ticket.feedback) {
+                <mat-icon [matTooltip]="ticket.feedback" color="primary">comment</mat-icon>
+                }
+                }
+                }
+
+                }
+
+                @case (UserRole.SUPPORT_ENGINEER) {
+
+                @switch (ticket.status) {
+                @case (TicketStatus.Assigned) {
+                <button mat-button (click)="resolve(ticket)">Resolve</button>
+                <button mat-button (click)="requestInput(ticket)">Request Input</button>
+                }
+                }
+
+                }
+
+                @case (UserRole.SUPERVISOR) {
+
+                @switch (ticket.status) {
+                @case (TicketStatus.New) {
+                <button mat-button (click)="assign(ticket)">Assign</button>
+                <button mat-button (click)="delegate(ticket)">Delegate</button>
+                }
+                }
+
+                }
+                }
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+
+        <tr *matNoDataRow>
+            <td colspan="10" class="no-data">No tickets found.</td>
+        </tr>
+    </table>
+</div>
+
+<div class="mobile-view">
+    <mat-accordion multi="false">
+        @for (ticket of (tickets$ | async); track ticket.ticketId) {
+        <mat-expansion-panel>
+            <mat-expansion-panel-header>
+                <mat-panel-title> {{ ticket.title }} </mat-panel-title>
+                <mat-panel-description> {{ ticket.status }} </mat-panel-description>
+            </mat-expansion-panel-header>
+
+            <div class="panel-details">
+                <p><strong>Priority:</strong> {{ ticket.priority }}</p>
+                @if (currentUser()?.role !== UserRole.END_USER) {
+                <p><strong>Created By:</strong> {{ ticket.createdByUserId }}</p>
+                }
+                <p><strong>Assigned To:</strong> {{ ticket.assignedToUserId === currentUser()?.userId ? '@Me' :
+                    ticket.assignedToUserId }}</p>
+            </div>
+
+            <mat-action-row>
+                @switch (currentUser()?.role) {
+                @case (UserRole.END_USER) { <button mat-button color="primary">Provide Input</button> }
+                @case (UserRole.SUPPORT_ENGINEER) { <button mat-button color="accent">Resolve</button> }
+                @case (UserRole.SUPERVISOR) { <button mat-button color="warn">Delegate</button> }
+                }
+            </mat-action-row>
+        </mat-expansion-panel>
+        } @empty {
+        <div class="empty-mobile">No tickets available.</div>
+        }
+    </mat-accordion>
+</div>

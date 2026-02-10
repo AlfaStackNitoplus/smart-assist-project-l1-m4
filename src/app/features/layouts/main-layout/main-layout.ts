@@ -10,7 +10,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Menu } from '../../../core/models/menu.model';
 import { MockData } from '../../../assets/mock-data';
-import { Role } from '../../../core/models/user.model';
+import { UserRole } from '../../../core/models/user.model';
 
 @Component({
   selector: 'app-main-layout',
@@ -30,7 +30,7 @@ import { Role } from '../../../core/models/user.model';
 export class MainLayout {
   version: string = 'L1-M4';
   develop: string = 'Smart Assist Team';
-  userRole: Role;
+  userRole: UserRole;
   userId: string = '';
   constructor(
     private route: ActivatedRoute
@@ -38,7 +38,7 @@ export class MainLayout {
     route.queryParams.subscribe(params => {
       this.userId = params['id'];
     });
-    this.userRole = MockData.users.find(u => u.userId === this.userId)?.role || Role.USER;
+    this.userRole = MockData.users.find(u => u.userId === this.userId)?.role || UserRole.END_USER;
   }
   getMenusByRole(): Menu[] {
     const mapping = MockData.roleMenuMapping.find(r => r.role === this.userRole);
