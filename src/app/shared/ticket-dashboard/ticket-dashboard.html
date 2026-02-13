@@ -112,7 +112,7 @@
         </ng-container>
 
         <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns();"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns();" appInteractiveRow></tr>
 
         <tr *matNoDataRow>
             <td colspan="10" class="no-data">No tickets found.</td>

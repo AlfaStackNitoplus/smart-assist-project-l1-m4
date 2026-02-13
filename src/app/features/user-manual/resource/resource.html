@@ -2,16 +2,127 @@
     <mat-card class="manual-card">
 
         <!-- Title -->
-        <h1>Project Folder Structure – L1M4</h1>
+        <h1>Resources (L1 M4)</h1>
         <mat-divider></mat-divider>
-        <!-- Project Structure -->
-        <section>
-            <p>
-                The application follows a <b>feature-based and scalable folder structure</b>,
-                separating core components, layouts, and feature modules.
-            </p>
 
-            <pre class="project-structure">
+        <mat-tab-group class="manual-tabs" animationDuration="0ms" mat-stretch-tabs="true" dynamicHeight>
+            <mat-tab label="Requirement">
+                <div class="requirement-area">
+
+
+                    <div class="cards-grid">
+                        @for (card of requirementCards; track card.title) {
+                        <mat-card class="step-card">
+                            <div class="step-header">
+                                <div class="step-badge">{{ card.step }}</div>
+                                <div class="step-title">{{ card.title }}</div>
+                            </div>
+                            <mat-card-content>
+                                <div class="step-split">
+                                    <div class="step-block">
+                                        <h3>Technical Requirements</h3>
+                                        <ul>
+                                            @for (t of card.technical; track t) {
+                                            <li>{{ t }}</li>
+                                            }
+                                        </ul>
+                                    </div>
+
+                                    <div class="step-block">
+                                        <h3>Functional Requirements</h3>
+                                        <ul>
+                                            @for (f of card.functional; track f) {
+                                            <li>{{ f }}</li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </div>
+                            </mat-card-content>
+                        </mat-card>
+                        }
+                    </div>
+
+                </div>
+            </mat-tab>
+
+            <!-- Tab 2: Tips -->
+            <mat-tab label="Tips">
+                <section>
+                    <p>
+                        Tips to complete L1M4, written as a quick reference for implementation and review.
+                    </p>
+
+                    <h3>1) Mock Data</h3>
+                    <ul>
+                        <li>Maintain mock/test data in one place: <code>src/app/assets/mock-data.ts</code>.</li>
+                        <li>When you add a new menu item, update both <b>menus</b> and <b>roleMenuMapping</b> so it
+                            appears for the correct roles.</li>
+                        <li>Keep mock data consistent with the interfaces in <code>src/app/core/models/</code>.</li>
+                    </ul>
+
+                    <h3>2) Login &amp; Navigation Flow</h3>
+                    <ul>
+                        <li>Login screen: <code>src/app/features/auth/login/</code>.</li>
+                        <li>Validate inputs, handle invalid login with a clear message, and keep navigation role-based
+                            using <code>UserRole</code>.</li>
+                        <li>Store the logged-in user in shared state so other screens can react (service + Observable
+                            pattern).</li>
+                    </ul>
+
+                    <h3>3) Role-Based Menu Rendering</h3>
+                    <ul>
+                        <li>Generate the side menu from role↔menu mapping (don’t duplicate role checks in multiple
+                            templates).</li>
+                        <li>Prefer consuming menus as an Observable and rendering with AsyncPipe in layouts.</li>
+                        <li>Use structural directives (<code>&#64;for</code>/<code>*ngFor</code>,
+                            <code>&#64;if</code>/<code>*ngIf</code>) for role-specific blocks.</li>
+                    </ul>
+
+                    <h3>4) Tickets: Filtering + MatTable</h3>
+                    <ul>
+                        <li>Keep role-based visibility + status filtering in services (components should not contain
+                            filtering logic).</li>
+                        <li>Expose tickets as <code>Observable&lt;Ticket[]&gt;</code> and render via AsyncPipe.</li>
+                        <li>Keep MatTable columns consistent across roles and include a clear <b>No data</b> state.</li>
+                    </ul>
+
+                    <h3>5) UI Highlighting &amp; Reusable Directive</h3>
+                    <ul>
+                        <li>Use <code>[ngClass]</code>/<code>[ngStyle]</code> for highlighting rules (status/priority)
+                            in a declarative way.</li>
+                        <li>Apply the reusable hover/row interaction directive:
+                            <code>src/app/shared/directive/interactive-row.ts</code> (<code>appInteractiveRow</code>).
+                        </li>
+                    </ul>
+
+                    <h3>6) Pipes</h3>
+                    <ul>
+                        <li>Use built-in pipes where possible and the custom status formatting pipe
+                            (<code>ticketStatus</code>) for readable labels.</li>
+                        <li>Use the <code>json</code> pipe only for debugging (Test Data tab), not for final UI.</li>
+                    </ul>
+
+                    <h3>7) Quick Checks Before Final Submission</h3>
+                    <ul>
+                        <li>Lifecycle: load data only in <code>ngOnInit</code>, UI refs in <code>ngAfterViewInit</code>,
+                            cleanup in <code>ngOnDestroy</code>.</li>
+                        <li>No nested subscriptions; prefer RxJS operators (<code>map</code>, <code>filter</code>,
+                            <code>switchMap</code>) and AsyncPipe.</li>
+                        <li>Verify role-based menus and ticket visibility work correctly for each role.</li>
+                    </ul>
+                </section>
+
+                <!-- Keep the existing folder structure + links here -->
+                <section>
+                    <h2>Project Folder Structure – L1M4</h2>
+                    <mat-divider></mat-divider>
+
+                    <p>
+                        The application follows a <b>feature-based and scalable folder structure</b>, separating
+                        core components, layouts, and feature modules.
+                    </p>
+
+                    <pre class="project-structure">
 src/
  └── app/
      ├── core/
@@ -26,10 +137,9 @@ src/
      ├── features/
      │   ├── auth/
      │   │   └── login/
-     │   ├── admin/
      │   ├── support-engineer/
+     │   ├── supervisor/
      │   ├── user/
-     │   │   └── my-ticket/
      │   └── user-manual/
      │
      ├── layouts/
@@ -37,41 +147,80 @@ src/
      │   └── main-layout/
      │
      ├── app.routes.ts
-     ├── app.component.ts
+     ├── app.ts
      └── app.config.ts
-      </pre>
+                    </pre>
 
-            <ul>
-                <li><b>Core</b>: Shared components like Header & Footer, and services like Auth service.</li>
-                <li><b>Features</b>: Business modules such as Login, Admin, Support Engineer, User and User Manual</li>
-                <li><b>Layouts</b>: Separate layouts for authentication and main app</li>
-                <li><b>Routing</b>: Centralized route configuration in app.routes.ts</li>
-            </ul>
-        </section>
+                    <ul>
+                        <li><b>Core</b>: Shared components like Header & Footer, and shared services.</li>
+                        <li><b>Features</b>: Modules such as Auth, Support Engineer, Supervisor, User, User Manual.</li>
+                        <li><b>Layouts</b>: Separate layouts for authentication and main app.</li>
+                        <li><b>Routing</b>: Centralized route configuration in app.routes.ts.</li>
+                    </ul>
+                </section>
 
-        <!-- External Resources -->
-        <section>
-            <h2>External Resources</h2>
-            <mat-divider></mat-divider>
-            <ul>
-                <li>
-                    <a href="https://angular.io/docs" target="_blank" rel="noopener noreferrer">
-                        Angular Documentation
-                    </a>
-                </li>
-                <li>
-                    <a href="https://material.angular.io/components/categories" target="_blank"
-                        rel="noopener noreferrer">
-                        Angular Material Components
-                    </a>
-                </li>
-                <li>
-                    <a href="https://rxjs.dev/guide/overview" target="_blank" rel="noopener noreferrer">
-                        RxJS Documentation
-                    </a>
-                </li>
-            </ul>
-        </section>
+                <section>
+                    <h2>External Resources</h2>
+                    <mat-divider></mat-divider>
+                    <ul>
+                        <li>
+                            <a href="https://angular.io/docs" target="_blank" rel="noopener noreferrer">
+                                Angular Documentation
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://material.angular.io/components/categories" target="_blank"
+                                rel="noopener noreferrer">
+                                Angular Material Components
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://rxjs.dev/guide/overview" target="_blank" rel="noopener noreferrer">
+                                RxJS Documentation
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+            </mat-tab>
+
+            <!-- Tab 3: Test Data -->
+            <mat-tab label="Test Data">
+                <section>
+                    <p>
+                        These are the mock datasets driving the UI.
+                    </p>
+
+                    <h3>Users</h3>
+                    <pre>{{ mockUsers | json }}</pre>
+
+                    <h3>Menus</h3>
+                    <pre>{{ mockMenus | json }}</pre>
+
+                    <h3>Role ↔ Menu Mapping</h3>
+                    <pre>{{ mockRoleMenuMapping | json }}</pre>
+
+                    <h3>Tickets</h3>
+                    <pre>{{ mockTickets | json }}</pre>
+                </section>
+            </mat-tab>
+
+            <!-- Tab 4: Evaluation Parameter -->
+            <mat-tab label="Evaluation Parameter">
+                <section>
+                    <p>
+                        Checklist for review. Your selections <b>auto-save</b> in this browser.
+                    </p>
+
+                    <div class="evaluation-list">
+                        @for (item of evaluationItems; track item.id) {
+                        <mat-checkbox [checked]="item.checked" (change)="onEvaluationToggle(item, $event.checked)">
+                            {{ item.label }}
+                        </mat-checkbox>
+                        }
+                    </div>
+                </section>
+            </mat-tab>
+        </mat-tab-group>
 
     </mat-card>
 </div>

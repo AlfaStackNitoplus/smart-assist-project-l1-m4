@@ -15,12 +15,13 @@ import { AgePipe } from '../pipes/age-pipe-pipe';
 import { MatInputModule } from '@angular/material/input';
 import { MockData } from '../../assets/mock-data';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { InteractiveRow } from '../directive/interactive-row';
 
 @Component({
   selector: 'app-ticket-dashboard',
   imports: [CommonModule, MatTableModule, AsyncPipe, MatChipsModule, MatIconModule,
     MatExpansionModule, MatInputModule,MatTooltipModule,
-    AgePipe,
+    AgePipe,InteractiveRow,
     MatButtonModule],
   templateUrl: './ticket-dashboard.html',
   styleUrl: './ticket-dashboard.scss',
@@ -106,6 +107,7 @@ export class TicketDashboard implements OnInit, AfterViewInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => this.currentUser.set(user));
   }
+  // Requirement 1: Accessing the search input for reactive streams
   @ViewChild('ticketSearch', { static: false })
   searchInput!: ElementRef<HTMLInputElement>;
 
@@ -142,7 +144,7 @@ export class TicketDashboard implements OnInit, AfterViewInit, OnDestroy {
     }
     this.ticketService.updateFilter(status);
   }
-
+// Helper method to display user names
   getUserName(assigneeId?: string): string {
     if (!assigneeId) return '-';
     return MockData.users.find(u => u.userId === assigneeId)?.name ?? '-';
